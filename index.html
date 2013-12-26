@@ -1,0 +1,199 @@
+<!DOCTYPE html> 
+<html>
+<head>
+<style type="text/css">
+	#map-canvas{
+		height: 500px;
+	}
+</style>
+
+<meta charset="utf-8">
+<title>jQuery Mobile-Webanwendung</title>
+<link href="jquery.mobile-1.0.min.css" rel="stylesheet" type="text/css"/>
+<script src="jquery-1.6.4.min.js" type="text/javascript"></script>
+<script src="jquery.mobile-1.0.min.js" type="text/javascript"></script>
+<script type="text/javascript"
+      src="https://maps.googleapis.com/maps/api/js?sensor=true">
+</script>
+
+<script>
+
+var map;
+var Livetrack=false;
+var markers=[];
+var jstring='';
+
+
+function toggleButton(){    	
+	if(Livetrack){
+		Livetrack=false;
+		//alert("Tracker off");
+		$("#btn").html("Tracking OFF");
+	}	
+	else {
+		Livetrack = true; 
+		//alert("Tracker on");
+		jstring='{"deviceid":"0"}';
+		$("#btn").html("Tracking ON");
+		showMarkers();
+	}
+}
+
+
+function showMarkers(){
+	//alert("going through Showmarkers");
+	//console.log("started at markers");
+
+	if(Livetrack){
+		$.post("http://www.bizonlineafrica.com/telerivet/maps/getlocation.php", //latest location of all guardians and client device
+	    		new jQuery.parseJSON(jstring),
+			function(data,status){
+				
+				//console.log(data);
+	    			var jdata = JSON.parse(data);
+	    			if (!jdata.error){ 
+				//find a way to name each marker, make it appear and disappear on command
+				//markers=[];
+					for(var i=0;i<markers.length;i++){
+						markers[i].setMap(null);    					
+					};
+					markers=[];
+				
+	    				for(var i=0;i<jdata.length;i++){
+	    					markers[i] = new google.maps.Marker({
+	    		    				position: new google.maps.LatLng(jdata[i].latitude,jdata[i].longitude),
+	    		    				map: map,
+	    		    				title: jdata[i].owner
+	    					});
+	    					
+	    				};
+				}    
+				//console.log("After setting markers");
+				setTimeout(function() {
+				      		showMarkers();	
+					}, 
+					10000
+				);
+					
+				    
+			}
+		);	
+	}
+}
+	
+function initialize(position){
+
+
+
+	var myLatlng = 	new google.maps.LatLng(-6.816644,39.289553);//new google.maps.LatLng(position.coords.latitude,position.coords.longitude);
+	      
+	      					
+	var mapOptions = {
+	  center: myLatlng,
+	  zoom: 14,
+	  mapTypeId: google.maps.MapTypeId.ROADMAP
+	};
+	
+	map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+	
+	var marker = new google.maps.Marker({
+	    position: myLatlng,
+	    map: map,
+	    title:"My Position!"
+	});
+	
+}
+
+
+
+
+$(document).ready(function(){
+	
+  //navigator.geolocation.getCurrentPosition(initialize); 
+  
+  //navigator.geolocation.getCurrentPosition(initialize);
+  
+  
+  
+  initialize();
+  
+  $("button").click(function(){
+	toggleButton();
+  });
+    
+  
+});
+</script>
+
+
+
+
+</head> 
+<body> 
+
+<div data-role="page" id="page" data-theme="e">
+	<div data-role="header">
+		<h1>Seite eins</h1>
+	</div>
+	<div data-role="content">	
+		<ul data-role="listview">
+			<li><a href="#page2">Seite zwei</a></li>
+            <li><a href="#page3">Seite drei</a></li>
+			<li><a href="#page4">Seite vier</a></li>
+            <li><a href="#Map">Map</a></li>
+		</ul>		
+	</div>
+	<div data-role="footer">
+		<h4>Fußzeile</h4>
+	</div>
+</div>
+<div data-role="page" id="Map" data-theme="e">
+  <div data-role="header">
+    <h1>Map</h1>
+  </div>
+  <div id="map-canvas">
+
+  </div>
+  <div data-role="footer">
+    <h4>Fußzeile</h4>
+  </div>
+</div>
+
+<div data-role="page" id="page2" data-theme="e">
+	<div data-role="header">
+		<h1>Seite zwei</h1>
+	</div>
+	<div data-role="content">	
+		Inhalt		
+	</div>
+	<div data-role="footer">
+		<h4>Fußzeile</h4>
+	</div>
+</div>
+
+<div data-role="page" id="page3" data-theme="e">
+	<div data-role="header">
+		<h1>Seite drei</h1>
+	</div>
+	<div data-role="content">	
+		Inhalt		
+	</div>
+	<div data-role="footer">
+		<h4>Fußzeile</h4>
+	</div>
+</div>
+
+<div data-role="page" id="page4" data-theme="e">
+	<div data-role="header">
+		<h1>Seite vier</h1>
+	</div>
+	<div data-role="content">	
+		Inhalt		
+	</div>
+	<div data-role="footer">
+		<h4>Fußzeile</h4>
+	</div>
+</div>
+
+</body>
+</html>
